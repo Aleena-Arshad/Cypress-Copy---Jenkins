@@ -1,0 +1,30 @@
+[
+
+{
+"user_license_number": "7778897",
+"user_name": "Fixture 1 Manager",
+"email": "a1@example.com",
+"user_password": "12345678",
+"user_password_confirmation": "12345678",
+"select2-user_office_id-container": "BrainX Technologies"
+},
+
+{
+"user_license_number": "7778855",
+"user_name": "Fixture 2 Manager",
+"email": "a2@example.com",
+"user_password": "12345678",
+"user_password_confirmation": "12345678",
+"select2-user_office_id-container": "BrainX Technologies"
+},
+
+{
+"user_license_number": "7778858",
+"user_name": "Fixture 3 Manager",
+"email": "a3@example.com",
+"user_password": "12345678",
+"user_password_confirmation": "12345678",
+"select2-user_office_id-container": "BrainX Technologies"
+}
+
+]

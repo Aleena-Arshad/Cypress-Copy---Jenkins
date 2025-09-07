@@ -34,4 +34,4 @@ jobs:
          name: Cypress Artifacts ${{ matrix.browser }}
          path: |
            cypress/screenshots
-          cypress/videos
+           cypress/videos

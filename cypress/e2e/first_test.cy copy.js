@@ -25,7 +25,7 @@ describe('Alerts', ()=>{
 
         // Confirmation alert
         cy.on('window:confirm',(t)=>{
-            expect(t).to.contains('I am a JS Confirm');
+            expect(t).to.contains('I am a JS Confirmerte');
         })
 
         // Cypress auto closed alert window by using ok button

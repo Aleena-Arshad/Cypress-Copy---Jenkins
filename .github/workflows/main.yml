@@ -29,13 +29,20 @@ jobs:
         with:
           browser: ${{ matrix.browser }}
 
+      - name: Ensure Report Directory Exists
+        run: mkdir -p cypress/reports/${{ matrix.browser }}
+
       - name: Merge Mochawesome Reports
         run: |
-          npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json
+          npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json || echo "No JSON files to merge"
 
       - name: Generate HTML Report
         run: |
-          npx mochawesome-report-generator cypress/reports/${{ matrix.browser }}/merged-report.json -f "${{ matrix.browser }}-report.html" -o cypress/reports/${{ matrix.browser }}
+          if [ -f cypress/reports/${{ matrix.browser }}/merged-report.json ]; then
+            npx mochawesome-report-generator cypress/reports/${{ matrix.browser }}/merged-report.json -f "${{ matrix.browser }}-report.html" -o cypress/reports/${{ matrix.browser }}
+          else
+            echo "No merged JSON report found. Skipping HTML generation."
+          fi
 
       - name: Upload Cypress Artifacts
         uses: actions/upload-artifact@v4

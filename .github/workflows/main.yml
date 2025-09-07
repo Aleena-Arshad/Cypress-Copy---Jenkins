@@ -1,40 +1,38 @@
 name: Cypress Tests
 
-
 on:
- push:
- workflow_dispatch:
-
+  push:
+  workflow_dispatch:
 
 jobs:
- cypress-run:
-   runs-on: ubuntu-24.04
-   strategy:
-     fail-fast: false
-     matrix:
-       browsers: [chrome, edge]
-   steps:
-     - name: Checkout
-       uses: actions/checkout@v4
+  cypress-run:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, edge]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Install Dependencies
+        run: npm ci
 
-     - name: Cypress run in ${{ matrix.browsers }}
-       uses: cypress-io/github-action@v6
-       with:
-           browser: ${{ matrix.browsers }}
-           command: npx cypress run --browser ${{ matrix.browsers }} --reporter-options reportDir=cypress/reports/${{ matrix.browsers }}
+      - name: Run Cypress Tests with Mochawesome
+        uses: cypress-io/github-action@v6
+        with:
+          browser: ${{ matrix.browser }}
 
+      - name: Merge Mochawesome Reports
+        run: |
+          npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged-report.json
 
-     - name: Merge Mochawesome Reports
-       run: npx mochawesome-merge cypress/reports/${{ matrix.browsers }}/*.json > cypress/reports/${{ matrix.browsers }}/merged-reports.json
+      - name: Generate HTML Reports
+        run: |
+          npx mochawesome-report-generator cypress/reports/merged-report.json -f "report-${{ matrix.browser }}.html" -o cypress/reports/
 
-
-     - name: Generate HTML Reports
-       run: npx mochawesome-report-generator cypress/reports/${{ matrix.browsers }}/merged-reports.json -f "${{ matrix.browsers }}-report.html" -o cypress/reports/${{ matrix.browsers }}
-
-
-     - name: Upload HTML Reports
-       uses: actions/upload-artifact@v4
-       with:
-           name: Cypress HTML Report ${{ matrix.browsers }}
-           path: cypress/reports/${{ matrix.browsers }}
+      - name: Upload HTML Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cypress HTML Report ${{ matrix.browser }}
+          path: cypress/reports/

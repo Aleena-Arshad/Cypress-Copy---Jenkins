@@ -11,28 +11,37 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chrome, edge]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Cypress Tests with Mochawesome
+      - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
           browser: ${{ matrix.browser }}
 
       - name: Merge Mochawesome Reports
         run: |
-          npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged-report.json
+          npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json
 
-      - name: Generate HTML Reports
+      - name: Generate HTML Report
         run: |
-          npx mochawesome-report-generator cypress/reports/merged-report.json -f "report-${{ matrix.browser }}.html" -o cypress/reports/
+          npx mochawesome-report-generator cypress/reports/${{ matrix.browser }}/merged-report.json -f "${{ matrix.browser }}-report.html" -o cypress/reports/${{ matrix.browser }}
 
-      - name: Upload HTML Reports
+      - name: Upload Cypress Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Cypress HTML Report ${{ matrix.browser }}
-          path: cypress/reports/
+          name: Cypress Artifacts ${{ matrix.browser }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/reports/${{ matrix.browser }}

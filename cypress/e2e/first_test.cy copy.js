@@ -25,7 +25,7 @@ describe('Alerts', ()=>{
 
         // Confirmation alert
         cy.on('window:confirm',(t)=>{
-            expect(t).to.contains('I am a JS Confirmerte');
+            expect(t).to.contains('I am a JS Confirm');
         })
 
         // Cypress auto closed alert window by using ok button
@@ -36,7 +36,7 @@ describe('Alerts', ()=>{
 
     it('Js confirm alert - Cancel',()=>{
         cy.visit('https://the-internet.herokuapp.com/javascript_alerts')
-        cy.get("button[onclick='jsConfirm()']").click();
+        cy.get("button[onclick='jsConfirm()']").click().abc()
 
         // Confirmation alert
         cy.on('window:confirm',(t)=>{

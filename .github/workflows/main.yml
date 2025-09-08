@@ -11,6 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chrome, edge]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,22 +20,17 @@ jobs:
         run: npm ci
 
       - name: Run Cypress Tests
-        uses: cypress-io/github-action@v6
-        with:
-          browser: ${{ matrix.browser }}
-          config: reporter=cypress-mochawesome-reporter,reportsFolder=cypress/reports/${{ matrix.browser }},reporterOptions.reportDir=cypress/reports/${{ matrix.browser }},reporterOptions.html=true,reporterOptions.json=true
-
-      - name: Merge Mochawesome Reports (skip if none)
         run: |
           mkdir -p cypress/reports/${{ matrix.browser }}
-          if ls cypress/reports/${{ matrix.browser }}/*.json 1> /dev/null 2>&1; then
-            npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json
-          else
-            echo "No JSON reports found, skipping merge."
-          fi
+          npx cypress run --browser ${{ matrix.browser }} --reporter cypress-mochawesome-reporter --reporter-options reportDir=cypress/reports/${{ matrix.browser }},overwrite=false,html=true,json=true
+
+      - name: Merge Mochawesome JSON Reports
+        run: |
+          mkdir -p cypress/reports/${{ matrix.browser }}
+          npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json
         continue-on-error: true
 
-      - name: Generate HTML Report (skip if merged JSON missing)
+      - name: Generate HTML Report
         run: |
           if [ -f cypress/reports/${{ matrix.browser }}/merged-report.json ]; then
             npx mochawesome-report-generator cypress/reports/${{ matrix.browser }}/merged-report.json -o cypress/reports/${{ matrix.browser }}
@@ -43,16 +39,11 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Upload Screenshots & Videos
+      - name: Upload Cypress Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Cypress Artifacts ${{ matrix.browser }}
           path: |
             cypress/screenshots
             cypress/videos
-
-      - name: Upload Mochawesome Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Cypress HTML Report ${{ matrix.browser }}
-          path: cypress/reports/${{ matrix.browser }}
+            cypress/reports/${{ matrix.browser }}

@@ -35,3 +35,6 @@ jobs:
          path: |
            cypress/screenshots
            cypress/videos
+
+
+# fail-fast: false ensures that even if one browser fails, the others continue to run.

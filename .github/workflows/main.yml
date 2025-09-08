@@ -24,16 +24,24 @@ jobs:
           browser: ${{ matrix.browser }}
           config: reporter=cypress-mochawesome-reporter,reportsFolder=cypress/reports/${{ matrix.browser }},reporterOptions.reportDir=cypress/reports/${{ matrix.browser }},reporterOptions.html=true,reporterOptions.json=true
 
-      - name: Merge Mochawesome Reports
+      - name: Merge Mochawesome Reports (skip if none)
         run: |
           mkdir -p cypress/reports/${{ matrix.browser }}
-          npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json
+          if ls cypress/reports/${{ matrix.browser }}/*.json 1> /dev/null 2>&1; then
+            npx mochawesome-merge cypress/reports/${{ matrix.browser }}/*.json > cypress/reports/${{ matrix.browser }}/merged-report.json
+          else
+            echo "No JSON reports found, skipping merge."
+          fi
         continue-on-error: true
 
-      - name: Generate HTML Report
+      - name: Generate HTML Report (skip if merged JSON missing)
         run: |
-          mkdir -p cypress/reports/${{ matrix.browser }}
-          npx mochawesome-report-generator cypress/reports/${{ matrix.browser }}/merged-report.json -o cypress/reports/${{ matrix.browser }}
+          if [ -f cypress/reports/${{ matrix.browser }}/merged-report.json ]; then
+            npx mochawesome-report-generator cypress/reports/${{ matrix.browser }}/merged-report.json -o cypress/reports/${{ matrix.browser }}
+          else
+            echo "Merged JSON not found, skipping HTML generation."
+          fi
+        continue-on-error: true
 
       - name: Upload Screenshots & Videos
         uses: actions/upload-artifact@v4
